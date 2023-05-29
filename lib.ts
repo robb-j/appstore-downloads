@@ -13,9 +13,10 @@ export async function getTotalDownloads() {
       .map((l) => JSON.parse(l))
 
     for (const record of records) {
+      const key = record.SKU.trim()
       downloads.set(
-        record.SKU,
-        (downloads.get(record.SKU) ?? 0) + parseInt(record.Units),
+        key,
+        (downloads.get(key) ?? 0) + parseInt(record.Units),
       )
     }
   }

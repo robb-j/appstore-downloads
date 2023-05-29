@@ -8,13 +8,13 @@ import { JsonStringifyStream } from 'std/json/mod.ts'
 import { join } from 'std/path/mod.ts'
 import { getTotalDownloads } from './lib.ts'
 
-const APPSTORE_ISSUER_ID = Deno.env.get('APPSTORE_ISSUER_ID')
+const APPSTORE_ISSUER_ID = Deno.env.get('APPSTORE_ISSUER_ID')!
 if (!APPSTORE_ISSUER_ID) throw new Error('APPSTORE_ISSUER_ID not set')
 
-const APPSTORE_KEY_ID = Deno.env.get('APPSTORE_KEY_ID')
+const APPSTORE_KEY_ID = Deno.env.get('APPSTORE_KEY_ID')!
 if (!APPSTORE_KEY_ID) throw new Error('APPSTORE_KEY_ID not set')
 
-const START_DATE = Deno.env.get('START_DATE')
+const START_DATE = Deno.env.get('START_DATE')!
 if (!START_DATE) throw new Error('START_DATE not set')
 
 const alg = 'ES256'
@@ -160,29 +160,27 @@ export async function fetchData() {
   //
   // Process leading years
   //
-  while (date.getFullYear() < today.getFullYear()) {
+  do {
+    await fetchReport('YEARLY', date.getFullYear().toString())
     date.setFullYear(date.getFullYear() + 1)
-
-    await fetchReport('YEARLY', (date.getFullYear() - 1).toString())
-  }
+  } while (date.getFullYear() < today.getFullYear())
 
   //
   // Process leading weeks in current year
   //
-  while (date.getTime() < currentWeek.getTime()) {
-    date.setDate(date.getDate() + 7)
-
+  do {
     await fetchReport('WEEKLY', getApiDate(date))
-  }
+    date.setDate(date.getDate() + 7)
+  } while (date.getTime() < currentWeek.getTime())
 
   //
   // Process current daily
   //
-  while (date.getTime() < today.getTime()) {
-    date.setDate(date.getDate() + 1)
-
+  do {
     await fetchReport('DAILY', getApiDate(date))
-  }
+
+    date.setDate(date.getDate() + 1)
+  } while (date.getTime() < today.getTime())
 }
 
 //
