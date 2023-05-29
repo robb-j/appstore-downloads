@@ -78,7 +78,7 @@ deno task serve
 There are two endpoints
 
 - `/` returns the app store download counts
-- `/health` just returns a http 200 to know everything is working
+- `/healthz` just returns a http 200 to know everything is working
 
 Using the main endpoint, you should get some json like this:
 
