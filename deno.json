@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "fetch": "deno run --allow-net=api.appstoreconnect.apple.com --allow-write=data --allow-read=. --allow-env fetch.ts",
+    "serve": "deno run --unstable --allow-net --allow-read=. --allow-write=data --allow-env server.ts"
+  },
+  "imports": {
+    "jose/": "https://deno.land/x/jose@v4.12.0/",
+    "std/": "https://deno.land/std@0.181.0/"
+  },
+  "fmt": {
+    "options": {
+      "singleQuote": true,
+      "semiColons": false
+    }
+  }
+}

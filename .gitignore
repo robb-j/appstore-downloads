@@ -1,0 +1,8 @@
+#
+# Files to ignore from Git source control
+#
+
+data
+*.p8
+.DS_Store
+*.env

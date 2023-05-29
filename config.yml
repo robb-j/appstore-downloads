@@ -1,0 +1,80 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appstore-downloads
+  namespace: tools
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: appstore-downloads
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: appstore-downloads
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/robb-j/appstore-downloads:1.0.0
+          resources:
+            requests: { memory: 64Mi, cpu: 100m }
+            limits: { cpu: 200m }
+          readinessProbe:
+            tcpSocket: { port: 8000 }
+          livenessProbe:
+            httpGet: { port: 8000, path: /healthz }
+          volumeMounts:
+            - mountPath: /app/data
+              name: data
+            - mountPath: /app/AuthKey.p8
+              name: secrets
+              subPath: authkey.p8
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: secrets
+          secret:
+            secretName: appstore-downloads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appstore-downloads
+  namespace: tools
+spec:
+  selector:
+    app.kubernetes.io/name: appstore-downloads
+  ports:
+    - port: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: appstore-downloads
+  namespace: tools
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: appstore-downloads.r0b.io
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: appstore-downloads
+                port: { number: 8000 }
+  tls:
+    - hosts:
+        - appstore-downloads.r0b.io
+      secretName: appstore-downloads.r0b.io
+---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: appstore-downloads
+  namespace: tools
+spec:
+  itemPath: 'vaults/cloudlab/items/tools-appstore-downloads'
