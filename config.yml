@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/robb-j/appstore-downloads:1.0.0
+          image: ghcr.io/robb-j/appstore-downloads:1.0.1
           resources:
             requests: { memory: 64Mi, cpu: 100m }
             limits: { cpu: 200m }
@@ -28,7 +28,20 @@ spec:
               name: data
             - mountPath: /app/AuthKey.p8
               name: secrets
-              subPath: authkey.p8
+              subPath: AuthKey.p8
+          env:
+            - name: APPSTORE_ISSUER_ID
+              valueFrom:
+                secretKeyRef: 
+                  name: appstore-downloads
+                  key: APPSTORE_ISSUER_ID
+            - name: APPSTORE_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: appstore-downloads
+                  key: APPSTORE_KEY_ID
+            - name: START_DATE
+              value: 2016-01-01T00:00:00.000Z
       volumes:
         - name: data
           emptyDir: {}
