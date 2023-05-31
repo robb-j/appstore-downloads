@@ -25,16 +25,6 @@ const privateKey = await jose.importPKCS8(
   alg,
 )
 
-const jwt = await new jose.SignJWT({})
-  .setProtectedHeader({ alg, kid: APPSTORE_KEY_ID })
-  .setIssuedAt()
-  .setIssuer(APPSTORE_ISSUER_ID)
-  .setAudience('appstoreconnect-v1')
-  .setExpirationTime('5m')
-  .sign(privateKey)
-
-const headers = { authorization: `Bearer ${jwt}` }
-
 async function isFile(path: string) {
   try {
     const stat = await Deno.stat(path)
@@ -52,6 +42,16 @@ async function fetchReport(frequency: string, reportDate: string) {
     console.debug('skip', key)
     return
   }
+  
+  const jwt = await new jose.SignJWT({})
+    .setProtectedHeader({ alg, kid: APPSTORE_KEY_ID })
+    .setIssuedAt()
+    .setIssuer(APPSTORE_ISSUER_ID)
+    .setAudience('appstoreconnect-v1')
+    .setExpirationTime('5m')
+    .sign(privateKey)
+
+  const headers = { authorization: `Bearer ${jwt}` }
 
   console.debug('fetchReport', frequency, reportDate)
 
